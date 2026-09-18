@@ -82,3 +82,28 @@ app.post("/generate-from-audio", upload.single("audio"), async(req, res) => {
     console.log(e); res.status(500).json({ message: e.message });
   }
 });
+
+app.post("api/query", async (req, res) => {
+  const { conversation } = req.body;
+  try {
+    if (!Array.isArray(conversation)) throw new Error("Message must be and array!");
+
+    const contents = conversation.map(({ role, text}) => ({
+      role,
+      parts: [{ text }]
+    }));
+
+    const response = await aiInstance.models.generateContent({
+      model: AI_MODEL,
+      contents,
+      config: {
+        temperature: 0.5, // skala dari 0 s-d 2.0
+        systemInstruction: "Setiap jawaban menggunakan bahasa Indonesia.",
+      }
+    });
+
+    res.status(200).json({ result: response.text });
+  } catch (ex) {
+    res.status(500).json({ error: e.message })
+  }
+})
