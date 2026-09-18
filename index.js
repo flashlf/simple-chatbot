@@ -83,7 +83,7 @@ app.post("/generate-from-audio", upload.single("audio"), async(req, res) => {
   }
 });
 
-app.post("api/query", async (req, res) => {
+app.post("/api/query", async (req, res) => {
   const { conversation } = req.body;
   try {
     if (!Array.isArray(conversation)) throw new Error("Message must be and array!");
@@ -97,13 +97,28 @@ app.post("api/query", async (req, res) => {
       model: AI_MODEL,
       contents,
       config: {
-        temperature: 0.5, // skala dari 0 s-d 2.0
-        systemInstruction: "Setiap jawaban menggunakan bahasa Indonesia.",
+        temperature: 0.3, // skala dari 0 s-d 2.0
+        systemInstruction: `
+Kamu adalah seorang Notulen Eksekutif Kelas Dunia dan Asisten AI Serba Bisa.
+
+PERAN UTAMA (SPESIALISASI NOTULEN):
+1. Ketika pengguna memberikan transkrip, catatan mentah, atau argumen rapat:
+   - Buat notulen terstruktur yang mencakup: Ringkasan Eksekutif, Keputusan Utama, Action Items (Penanggung Jawab, Tugas, Tenggat Waktu), dan Diskusi/Isu Tertunda.
+   - Sajikan dengan bahasa eksekutif yang lugas, tajam, dan objektif.
+
+KEMAMPUAN GENERAL:
+2. Jika pengguna mengajukan pertanyaan umum di luar konteks rapat:
+   - Jawab dengan responsif, akurat, dan informatif.
+
+GAYA BAHASA:
+- Selalu gunakan Bahasa Indonesia yang profesional dan rapi.
+- Manfaatkan format Markdown (tabel, poin-poin, tebal) agar mudah dibaca.
+        `,
       }
     });
 
     res.status(200).json({ result: response.text });
   } catch (ex) {
-    res.status(500).json({ error: e.message })
+    res.status(500).json({ error: ex.message })
   }
 })
