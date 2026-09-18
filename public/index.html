@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Executive AI Chatbot</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Marked for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="header-content">
+        <div class="bot-profile">
+          <div class="bot-avatar">
+            <i data-lucide="bot"></i>
+            <span class="status-indicator"></span>
+          </div>
+          <div class="bot-info">
+            <h1 class="bot-name">Executive Assistant</h1>
+            <span class="bot-status" id="botStatusText">Online &bull; AI Note & Audio</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button id="clearChatBtn" class="icon-btn" title="Bersihkan Percakapan">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Chat Message List -->
+    <main class="chat-main" id="chatContainer">
+      <div class="chat-messages" id="messageList">
+        <!-- Welcome banner -->
+        <div class="welcome-card">
+          <div class="welcome-icon">
+            <i data-lucide="sparkles"></i>
+          </div>
+          <h2>Halo! Ada yang bisa saya bantu hari ini?</h2>
+          <p>Kirim pesan teks, unggah file audio, gunakan mikrofon, atau rekam audio langsung dari tab/window untuk membuat notulen & transkrip cerdas.</p>
+          <div class="quick-suggestions">
+            <button class="suggestion-chip" data-prompt="Tolong rangkum poin-poin penting dari diskusi ini.">
+              <i data-lucide="file-text"></i> Buat Notulen Rapat
+            </button>
+            <button class="suggestion-chip" data-prompt="Apa saja rekomendasi tindakan (action items) dari percakapan ini?">
+              <i data-lucide="check-circle-2"></i> Ekstrak Action Items
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll to bottom float button -->
+      <button id="scrollBottomBtn" class="scroll-bottom-btn" style="display: none;" title="Scroll ke bawah">
+        <i data-lucide="arrow-down"></i>
+      </button>
+    </main>
+
+    <!-- Active Recording Banner (Mic / Window Audio) -->
+    <div id="recordingBanner" class="recording-banner" style="display: none;">
+      <div class="rec-meta">
+        <span class="rec-pulse-dot"></span>
+        <div class="rec-text-wrap">
+          <span id="recSourceLabel" class="rec-source-label">Merekam Mikrofon</span>
+          <span id="recTimer" class="rec-timer">00:00</span>
+        </div>
+      </div>
+      <div class="rec-visualizer" id="recVisualizer">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="rec-controls">
+        <button id="cancelRecBtn" class="rec-btn cancel" title="Batal">
+          <i data-lucide="x"></i>
+        </button>
+        <button id="stopSendRecBtn" class="rec-btn stop-send" title="Selesai & Kirim">
+          <i data-lucide="check"></i>
+          <span>Kirim</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Audio Source Bottom Sheet / Action Modal -->
+    <div id="audioModalOverlay" class="modal-overlay" style="display: none;">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+          <h3>Pilih Sumber Audio</h3>
+          <button id="closeAudioModalBtn" class="icon-btn-sm"><i data-lucide="x"></i></button>
+        </div>
+        <div class="audio-options-grid">
+          <button id="optMicBtn" class="audio-opt-card">
+            <div class="opt-icon"><i data-lucide="mic"></i></div>
+            <div class="opt-text">
+              <h4>Mikrofon</h4>
+              <p>Rekam langsung suara bicara Anda</p>
+            </div>
+          </button>
+          <button id="optWindowBtn" class="audio-opt-card">
+            <div class="opt-icon"><i data-lucide="screen-share"></i></div>
+            <div class="opt-text">
+              <h4>Audio Tab / Window</h4>
+              <p>Tangkap audio rapat dari Zoom, Meet, Youtube, dll.</p>
+            </div>
+          </button>
+          <button id="optFileBtn" class="audio-opt-card">
+            <div class="opt-icon"><i data-lucide="upload-cloud"></i></div>
+            <div class="opt-text">
+              <h4>Unggah File Audio</h4>
+              <p>Pilih file MP3, WAV, M4A, OGG, atau WebM</p>
+            </div>
+          </button>
+        </div>
+        <p class="sheet-footnote">
+          <i data-lucide="info"></i>
+          Untuk suara window/tab, pastikan mencentang opsi <strong>"Share tab/system audio"</strong> saat popup browser muncul.
+        </p>
+      </div>
+    </div>
+
+    <!-- Selected Attachment Bar -->
+    <div id="attachmentBar" class="attachment-bar" style="display: none;">
+      <div class="attachment-preview">
+        <i data-lucide="music-2"></i>
+        <div class="attachment-info">
+          <span id="attachmentName" class="file-name">audio.mp3</span>
+          <span id="attachmentSize" class="file-size">1.2 MB</span>
+        </div>
+      </div>
+      <button id="removeAttachmentBtn" class="icon-btn-sm" title="Hapus lampiran">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+
+    <!-- Input Footer -->
+    <footer class="chat-footer">
+      <div class="input-container">
+        <!-- Hidden file input -->
+        <input type="file" id="audioFileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a,.webm" style="display: none;" />
+
+        <button id="audioTriggerBtn" class="action-btn audio-btn" title="Rekam atau Unggah Audio">
+          <i data-lucide="mic"></i>
+        </button>
+
+        <div class="textarea-wrapper">
+          <textarea
+            id="messageInput"
+            rows="1"
+            placeholder="Ketik pesan atau instruksi transkrip..."
+            autocomplete="off"
+          ></textarea>
+        </div>
+
+        <button id="sendBtn" class="action-btn send-btn" title="Kirim Pesan" disabled>
+          <i data-lucide="send"></i>
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

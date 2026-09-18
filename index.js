@@ -10,6 +10,7 @@ const aiInstance = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const AI_MODEL = "gemini-3.6-flash";
 
 app.use(express.json());
+app.use(express.static('public'));
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server up on http://localhost:${PORT}`));
 
@@ -68,12 +69,13 @@ app.post("/generate-from-audio", upload.single("audio"), async(req, res) => {
   const { prompt } = req.body;
   const base64Audio = req.file.buffer.toString("base64")
 
+  const mimeType = (req.file.mimetype || 'audio/webm').split(';')[0].trim();
   try {
     const response = await aiInstance.models.generateContent({
       model: AI_MODEL,
       contents: [
         { text: prompt ?? "Tolong buatkan transkrip dari rekaman berikut.", type: "text" },
-        { inlineData: { data: base64Audio, mimeType: req.file.mimetype} }
+        { inlineData: { data: base64Audio, mimeType } }
       ],
     });
 
@@ -105,6 +107,10 @@ PERAN UTAMA (SPESIALISASI NOTULEN):
 1. Ketika pengguna memberikan transkrip, catatan mentah, atau argumen rapat:
    - Buat notulen terstruktur yang mencakup: Ringkasan Eksekutif, Keputusan Utama, Action Items (Penanggung Jawab, Tugas, Tenggat Waktu), dan Diskusi/Isu Tertunda.
    - Sajikan dengan bahasa eksekutif yang lugas, tajam, dan objektif.
+
+ATURAN PRESERVASI NAMA & ISTILAH (SANGAT IMPORTANT):
+- JANGAN PERNAH menerjemahkan nama merek, nama produk, model (contoh: "Porsche Macan", "Ford Mustang", "Volkswagen Beetle"), nama orang, atau nama perusahaan.
+- Pertahankan istilah bisnis/teknis, jargon, dan idiom internasional dalam bahasa aslinya jika penerjemahan akan mengurangi ketepatan makna (contoh: "leasing", "action items", "breakthrough", "revenue-sharing"). Gunakan cetak miring (italic) untuk istilah asing jika diperlukan.
 
 KEMAMPUAN GENERAL:
 2. Jika pengguna mengajukan pertanyaan umum di luar konteks rapat:
