@@ -53,7 +53,7 @@ Sebelum menjalankan aplikasi, pastikan sistem Anda telah terpasang:
 ### 1. Masuk ke Direktori Proyek
 Buka terminal (PowerShell / Command Prompt / Terminal) dan arahkan ke direktori proyek:
 ```bash
-cd R:\IMAM\Project\hacktiv8\simple-chatbot
+cd <your_workdir>\simple-chatbot
 ```
 
 ### 2. Instal Dependensi
