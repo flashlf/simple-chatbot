@@ -1,3 +1,5 @@
+// Kebutuhan Prasyarat kelulusan course hacktiv8
+// M. Imam Abdullah 18 Sept 2026
 // Executive AI Chatbot - Client App Logic
 
 document.addEventListener('DOMContentLoaded', () => {
